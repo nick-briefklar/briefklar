@@ -123,3 +123,4 @@ app.listen(PORT, () => {
   console.log(`✅ BriefKlar Server läuft auf http://localhost:${PORT}`);
   console.log(`   API-Key geladen: ${process.env.ANTHROPIC_API_KEY ? "JA ✓" : "NEIN ✗"}`);
 });
+module.exports = app;
