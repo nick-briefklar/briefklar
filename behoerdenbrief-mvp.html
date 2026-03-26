@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BriefKlar – Behördenbriefe einfach verstehen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:       #0a0a0f;
+    --surface:  #111118;
+    --border:   #1e1e2e;
+    --accent:   #e8c547;
+    --accent2:  #5b8dee;
+    --text:     #e8e8f0;
+    --muted:    #6b6b80;
+    --danger:   #ff4d4d;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: .35;
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,15,.85);
+    backdrop-filter: blur(14px);
+  }
+  .nav-inner {
+    max-width: 1100px; margin: 0 auto; padding: 0 24px;
+    height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.2rem;
+    color: var(--text);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; }
+  .nav-cta {
+    background: var(--accent);
+    color: #0a0a0f;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: .85rem;
+    border: none; cursor: pointer;
+    padding: 8px 20px; border-radius: 6px;
+    text-decoration: none;
+    transition: opacity .2s;
+  }
+  .nav-cta:hover { opacity: .85; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 160px 0 100px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Ambient glow */
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -200px; left: 50%; transform: translateX(-50%);
+    width: 900px; height: 600px;
+    background: radial-gradient(ellipse at center, rgba(232,197,71,.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(232,197,71,.08);
+    border: 1px solid rgba(232,197,71,.2);
+    color: var(--accent);
+    font-size: .78rem; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+    padding: 6px 14px; border-radius: 100px;
+    margin-bottom: 28px;
+    animation: fadeUp .6s ease both;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    max-width: 740px;
+    animation: fadeUp .6s .1s ease both;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .hero-sub {
+    margin-top: 20px;
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 520px;
+    font-weight: 300;
+    animation: fadeUp .6s .2s ease both;
+  }
+  .hero-actions {
+    margin-top: 44px;
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    animation: fadeUp .6s .3s ease both;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0a0f;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1rem;
+    border: none; cursor: pointer;
+    padding: 14px 32px; border-radius: 8px;
+    transition: transform .2s, opacity .2s;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-primary:hover { transform: translateY(-2px); opacity: .9; }
+  .btn-ghost {
+    color: var(--muted);
+    font-size: .9rem;
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    transition: color .2s;
+    background: none; border: none;
+  }
+  .btn-ghost:hover { color: var(--text); }
+  .hero-trust {
+    margin-top: 20px;
+    font-size: .8rem; color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+    animation: fadeUp .6s .4s ease both;
+  }
+  .hero-trust span { color: #4ade80; }
+
+  /* ── UPLOAD BOX (DEMO) ── */
+  .upload-section {
+    padding: 60px 0 100px;
+    animation: fadeUp .7s .35s ease both;
+  }
+  .upload-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px;
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+  }
+  .upload-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(232,197,71,.4), transparent);
+  }
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 48px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .25s, background .25s;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(232,197,71,.03);
+  }
+  .upload-icon {
+    width: 52px; height: 52px;
+    margin: 0 auto 16px;
+    background: rgba(232,197,71,.1);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+  }
+  .upload-zone h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem; font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .upload-zone p { font-size: .85rem; color: var(--muted); }
+  .upload-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
+  }
+
+  .upload-form-fields { margin-top: 28px; display: flex; flex-direction: column; gap: 14px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .field label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 10px 14px; font-size: .9rem;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color .2s;
+    outline: none;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+  .field select option { background: var(--surface); }
+
+  .submit-btn {
+    width: 100%;
+    background: var(--accent);
+    color: #0a0a0f;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1rem;
+    border: none; cursor: pointer;
+    padding: 14px; border-radius: 8px;
+    margin-top: 8px;
+    transition: opacity .2s, transform .2s;
+  }
+  .submit-btn:hover { opacity: .88; transform: translateY(-1px); }
+  .submit-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+  /* ── RESULT AREA ── */
+  .result-area {
+    display: none;
+    margin-top: 28px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .result-area.visible { display: block; animation: fadeUp .4s ease; }
+  .result-tag {
+    display: inline-block;
+    font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em;
+    padding: 4px 10px; border-radius: 100px;
+    margin-bottom: 14px;
+  }
+  .tag-analyse { background: rgba(91,141,238,.15); color: var(--accent2); border: 1px solid rgba(91,141,238,.2); }
+  .tag-antwort { background: rgba(74,222,128,.1); color: #4ade80; border: 1px solid rgba(74,222,128,.2); }
+  .result-area h4 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+  .result-area p { font-size: .9rem; color: #bbb; line-height: 1.7; }
+  .result-options { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .result-option {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color .2s;
+  }
+  .result-option:hover { border-color: var(--accent2); }
+  .result-option strong { font-size: .85rem; display: block; margin-bottom: 4px; }
+  .result-option span { font-size: .8rem; color: var(--muted); }
+  .disclaimer {
+    margin-top: 16px;
+    font-size: .72rem; color: var(--muted);
+    background: rgba(255,77,77,.04);
+    border: 1px solid rgba(255,77,77,.1);
+    border-radius: 6px; padding: 10px 12px;
+  }
+
+  /* loading spinner */
+  .spinner {
+    display: none;
+    width: 20px; height: 20px;
+    border: 2px solid rgba(10,10,15,.3);
+    border-top-color: #0a0a0f;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin: 0 auto;
+  }
+  .loading .spinner { display: block; }
+  .loading .btn-label { display: none; }
+
+  /* ── HOW IT WORKS ── */
+  .how { padding: 100px 0; }
+  .section-label {
+    font-size: .75rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 14px;
+  }
+  .how h2, .features h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 800; letter-spacing: -.02em;
+    max-width: 560px; margin-bottom: 60px;
+  }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 24px;
+    position: relative;
+    transition: border-color .25s;
+  }
+  .step:hover { border-color: rgba(232,197,71,.3); }
+  .step-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.5rem; font-weight: 800;
+    color: rgba(232,197,71,.12);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .step h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+  .step p { font-size: .85rem; color: var(--muted); }
+
+  /* ── FEATURES ── */
+  .features { padding: 60px 0 100px; }
+  .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  .feat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 24px;
+    transition: border-color .25s;
+  }
+  .feat-card:hover { border-color: rgba(91,141,238,.3); }
+  .feat-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; margin-bottom: 16px;
+  }
+  .feat-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+  .feat-card p { font-size: .85rem; color: var(--muted); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 0;
+    display: flex;
+  }
+  .footer-inner {
+    max-width: 1100px; margin: 0 auto; padding: 0 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 16px;
+  }
+  footer p { font-size: .8rem; color: var(--muted); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .field-row { grid-template-columns: 1fr; }
+    .upload-card { padding: 28px 20px; }
+    .hero { padding: 120px 0 60px; }
+    .hero-actions { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo"><span class="logo-dot"></span>BriefKlar</a>
+    <a href="#analyse" class="nav-cta">Jetzt analysieren</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-label">KI-gestützte Briefanalyse · Beta</div>
+    <h1>Kein Brief bleibt <em>unverstanden.</em></h1>
+    <p class="hero-sub">Lade deinen Behördenbrief hoch – unsere KI erklärt dir in Sekunden was wirklich drin steht und was du tun musst.</p>
+    <div class="hero-actions">
+      <a href="#analyse" class="btn-primary">Brief jetzt analysieren →</a>
+      <button class="btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg>
+        Demo ansehen
+      </button>
+    </div>
+    <div class="hero-trust"><span>✓</span> Keine Anmeldung · Keine Datenweitergabe · 100% lokal verarbeitet</div>
+  </div>
+</section>
+
+<!-- UPLOAD SECTION -->
+<section class="upload-section" id="analyse">
+  <div class="container">
+    <div class="upload-card">
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFile(this)"/>
+        <div class="upload-icon">📄</div>
+        <h3>Brief hier ablegen</h3>
+        <p>PDF oder Foto hochladen · Max. 10 MB</p>
+      </div>
+
+      <div class="upload-form-fields">
+        <div class="field-row">
+          <div class="field">
+            <label>Art des Schreibens</label>
+            <select id="briefType">
+              <option value="">Bitte wählen …</option>
+              <option>Mahnbescheid / Inkasso</option>
+              <option>Behördenbescheid</option>
+              <option>Versicherungsschreiben</option>
+              <option>Gerichtsschreiben</option>
+              <option>Vertrag / AGB</option>
+              <option>Sonstiges</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Dein Anliegen</label>
+            <select id="intention">
+              <option value="">Bitte wählen …</option>
+              <option>Brief verstehen</option>
+              <option>Antwort formulieren</option>
+              <option>Frist prüfen</option>
+              <option>Widerspruch einlegen</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Zusätzlicher Kontext (optional)</label>
+          <input type="text" id="context" placeholder="z.B. Brief kam letzte Woche, es geht um €340 Mahngebühr …"/>
+        </div>
+        <button class="submit-btn" id="submitBtn" onclick="analyseBreif()" disabled>
+          <span class="btn-label">Brief analysieren →</span>
+          <div class="spinner"></div>
+        </button>
+      </div>
+
+      <!-- RESULT -->
+      <div class="result-area" id="resultArea"></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="container">
+    <div class="section-label">So funktioniert's</div>
+    <h2>Von Upload zu Antwort in unter 30 Sekunden.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Brief hochladen</h3>
+        <p>PDF oder Foto – egal wie unscharf. Unsere KI liest trotzdem.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>KI analysiert</h3>
+        <p>Text wird extrahiert, rechtliche Fristen erkannt, Kernaussage destilliert.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Klartext + Optionen</h3>
+        <p>Du bekommst eine verständliche Erklärung und 3 konkrete Handlungsoptionen.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h3>Antwort generieren</h3>
+        <p>Wähle eine Option – BriefKlar schreibt den Antwortbrief direkt für dich.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="container">
+    <div class="section-label">Features</div>
+    <h2>Gebaut für Leute die keine Zeit verlieren.</h2>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(232,197,71,.1)">⚡</div>
+        <h3>Sofortanalyse</h3>
+        <p>Keine Wartezeit. Keine Formulare. Einfach hochladen und lesen.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(91,141,238,.1)">🔍</div>
+        <h3>Fristenerkennung</h3>
+        <p>Fristen werden automatisch erkannt und farblich hervorgehoben.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(74,222,128,.1)">✍️</div>
+        <h3>Antwortgenerator</h3>
+        <p>Professionelle Antwortbriefe – mit korrektem Ton und rechtssicherer Sprache.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(255,77,77,.08)">🔒</div>
+        <h3>Datenschutz first</h3>
+        <p>Dokumente werden nach der Analyse nicht gespeichert. Deine Daten gehören dir.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(232,197,71,.1)">🏗️</div>
+        <h3>Bau & Handwerk</h3>
+        <p>Spezialisiert auf Nachtragsforderungen, Gewährleistung und Baurechtsschreiben.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon" style="background:rgba(91,141,238,.1)">🌍</div>
+        <h3>AT · DE · CH</h3>
+        <p>Optimiert für österreichisches, deutsches und Schweizer Behördendeutsch.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <span class="logo" style="font-family:'Syne',sans-serif;font-weight:800"><span class="logo-dot"></span>BriefKlar</span>
+    <p>© 2025 BriefKlar · Kein Rechtsanwalt. Kein Ersatz für professionelle Rechtsberatung.</p>
+    <p style="font-size:.75rem;color:#3a3a50">Made in Wiener Neustadt 🇦🇹</p>
+  </div>
+</footer>
+
+<script>
+/* ── FILE HANDLING ── */
+let uploadedFileName = null;
+let uploadedFileBase64 = null;
+
+function handleFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  uploadedFileName = file.name;
+  const zone = document.getElementById('uploadZone');
+  zone.querySelector('h3').textContent = file.name;
+  zone.querySelector('p').textContent = (file.size / 1024).toFixed(0) + ' KB · Bereit zur Analyse';
+  zone.style.borderColor = 'var(--accent)';
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    uploadedFileBase64 = e.target.result.split(',')[1];
+    checkReady();
+  };
+  reader.readAsDataURL(file);
+}
+
+/* Drag & Drop */
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+  e.preventDefault(); zone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    document.getElementById('fileInput').files = dt.files;
+    handleFile(document.getElementById('fileInput'));
+  }
+});
+
+function checkReady() {
+  const type = document.getElementById('briefType').value;
+  const intention = document.getElementById('intention').value;
+  document.getElementById('submitBtn').disabled = !(uploadedFileBase64 && type && intention);
+}
+document.getElementById('briefType').addEventListener('change', checkReady);
+document.getElementById('intention').addEventListener('change', checkReady);
+
+/* ── ANALYSE ── */
+// Diese Funktion schickt den Brief jetzt an DEINEN lokalen Server (localhost:3000)
+// statt direkt an Anthropic. Dein Server fügt den geheimen API-Key hinzu.
+// Das ist der Unterschied zwischen einem Hobby-Projekt und einem echten Produkt.
+async function analyseBreif() {
+  const btn = document.getElementById('submitBtn');
+  const resultArea = document.getElementById('resultArea');
+  const briefType = document.getElementById('briefType').value;
+  const intention = document.getElementById('intention').value;
+  const context = document.getElementById('context').value;
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+  resultArea.classList.remove('visible');
+
+  try {
+    // Dateiformat bestimmen (PDF oder Bild)
+    const mediaType = uploadedFileName?.toLowerCase().endsWith('.pdf')
+      ? 'application/pdf'
+      : uploadedFileName?.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+
+    // Anfrage geht jetzt an DEINEN Server – nicht mehr direkt an Anthropic
+    // Dein server.js empfängt das, fügt den API-Key hinzu, und leitet weiter
+    const response = await fetch('http://localhost:3000/api/analyse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileBase64: uploadedFileBase64,
+        mediaType: mediaType,
+        briefType: briefType,
+        intention: intention,
+        context: context || ''
+      })
+    });
+
+    // Antwort von deinem Server empfangen und verarbeiten
+    const parsed = await response.json();
+
+    if (parsed.error) {
+      throw new Error(parsed.error);
+    }
+
+    renderResult(parsed);
+
+  } catch (err) {
+    resultArea.innerHTML = `<p style="color:var(--danger)">Fehler bei der Analyse. Bitte versuche es erneut.<br><small>${err.message}</small></p>`;
+    resultArea.classList.add('visible');
+  }
+
+  btn.classList.remove('loading');
+  btn.disabled = false;
+}
+
+function renderResult(data) {
+  const resultArea = document.getElementById('resultArea');
+  resultArea.innerHTML = `
+    <div class="result-tag tag-analyse">📋 Analyse</div>
+    <h4>Was steht wirklich drin?</h4>
+    <p>${data.zusammenfassung}</p>
+    ${data.wichtigsteFrist && data.wichtigsteFrist !== 'Keine Frist erkennbar'
+      ? `<p style="margin-top:12px;padding:10px 14px;background:rgba(255,77,77,.07);border:1px solid rgba(255,77,77,.15);border-radius:8px;font-size:.85rem">⚠️ <strong>Frist:</strong> ${data.wichtigsteFrist}</p>`
+      : ''
+    }
+    ${data.kernproblem
+      ? `<p style="margin-top:14px;font-size:.85rem;color:#bbb"><strong style="color:var(--text)">Kernproblem:</strong> ${data.kernproblem}</p>`
+      : ''
+    }
+    <div style="margin-top:24px">
+      <div class="result-tag tag-antwort">✅ Deine Optionen</div>
+      <h4>Was kannst du tun?</h4>
+      <div class="result-options">
+        ${(data.optionen || []).map((o, i) => `
+          <div class="result-option">
+            <strong>${i + 1}. ${o.titel}</strong>
+            <span>${o.beschreibung}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="disclaimer">
+      ⚠️ <strong>Rechtlicher Hinweis:</strong> Diese Analyse wurde von einer KI erstellt und stellt keine Rechtsberatung dar. 
+      Bei komplexen rechtlichen Fragen wende dich an einen zugelassenen Rechtsanwalt oder die Arbeiterkammer.
+    </div>
+  `;
+  resultArea.classList.add('visible');
+  resultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+</body>
+</html>
