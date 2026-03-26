@@ -114,6 +114,9 @@ DISCLAIMER: Diese Analyse ersetzt keine professionelle Rechtsberatung.`;
   }
 });
 
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
 // ── SERVER STARTEN ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
